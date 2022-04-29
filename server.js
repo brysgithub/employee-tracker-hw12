@@ -1,18 +1,6 @@
-const mysql = require('mysql2');
+// const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-
-
-// const answers = await inquirer.prompt([{
-//     type:"list",
-//     name:"department",
-//     question:"Choice of Department",
-//     choices: [
-//         { name: "Sales", value: 1 },
-//         { name: "Accounting", value: 2 },
-//     ]
-// }])
-
 
 async function selectionMenu() {
 
@@ -56,7 +44,7 @@ async function selectionMenu() {
             case 'Add Department':
                 return addDepartment();
             case 'Update Employee Role':
-                return viewAllRoles();
+                return updateEmployeeRole();
             case 'Exit':
                 process.exit();
     }
@@ -90,13 +78,13 @@ async function addDepartment() {
         {
             type: 'input',
             name: 'department_name',
-            message: 'Enter name of Department.'
+            message: 'Enter name of Department:'
         }
     ])
     .then((answer) => {
         let listDepartments = ('INSERT INTO departments (department_name) VALUES (?)');
         db.query(listDepartments, answer.department_name, (err, res) => {
-            if (err) throw err;
+            if (err) throw err; 
             console.log("Department added to DB")
         })
     })
@@ -152,21 +140,59 @@ async function addEmployee() {
     // SELECT the existing roles out of the `roles` table
     const roles = await db.query('SELECT * FROM roles');
 
-    const choices = departments.map((department) => {
+    const displayRoles = roles.map((role) => {
         return {
-            name: department.department_name,
-            value: department.id
+            name: role.role_title,
+            value: role.id
         }
     })
 
+    const displayManagers = employees.map((employees) => {
+        return {
+            name: employees.first_name,
+            value: employees.id
+        }
+    })
+
+    // THEN prompt the user for employee information (inquirer)
+    const addEmployeeAnswer = await inquirer.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'Enter first name:'
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'Enter last name:'
+        },
+        {
+            type: 'list',
+            name: 'roles_id',
+            message: 'Assign role:',
+            choices: displayRoles,
+        },
+        {
+            type: 'list',
+            name: 'manager_id',
+            message: 'Assign manager:',
+            choices: displayManagers,
+        }
+    ]);
+
     await db.query(
-        "INSERT INTO roles (role_title, salary, department_id) VALUES (?, ?, ?)",
-        [addRoleAnswer.role_title, addRoleAnswer.salary, addRoleAnswer.department_id]
+        "INSERT INTO employees (first_name, last_name, roles_id, manager_id) VALUES (?, ?, ?, ?)",
+        [addEmployeeAnswer.first_name, addEmployeeAnswer.last_name, addEmployeeAnswer.roles_id, addEmployeeAnswer.manager_id]
     )
     selectionMenu();
 }
 
 
 // Update an employee
+async function updateEmployeeRole () {
+    // SELECT the existing employees out of the `employees` table
+    const employees = await db.query('SELECT * FROM employees');
+}
+
 
 selectionMenu();
