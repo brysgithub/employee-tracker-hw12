@@ -85,7 +85,6 @@ async function addDepartment() {
         let listDepartments = ('INSERT INTO departments (department_name) VALUES (?)');
         db.query(listDepartments, answer.department_name, (err, res) => {
             if (err) throw err; 
-            console.log("Department added to DB")
         })
     })
     selectionMenu();
@@ -149,7 +148,7 @@ async function addEmployee() {
 
     const displayManagers = employees.map((employees) => {
         return {
-            name: employees.first_name,
+            name: [employees.first_name + " " + employees.last_name],
             value: employees.id
         }
     })
@@ -192,6 +191,43 @@ async function addEmployee() {
 async function updateEmployeeRole () {
     // SELECT the existing employees out of the `employees` table
     const employees = await db.query('SELECT * FROM employees');
+
+    // SELECT the existing roles out of the `roles` table
+    const roles = await db.query('SELECT * FROM roles');
+
+    const displayEmployees = employees.map((employees) => {
+        return {
+            name: [employees.first_name + " " + employees.last_name],
+            value: employees.id
+        }
+    })
+    const displayRoles = roles.map((role) => {
+        return {
+            name: role.role_title,
+            value: role.id
+        }
+    })
+
+    const updateEmployeeAnswer = await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employee_id',
+            message: 'Choose employee to update:',
+            choices: displayEmployees,
+        },
+        {
+            type: 'list',
+            name: 'roles_id',
+            message: 'Assign role:',
+            choices: displayRoles,
+        },
+    ])
+
+    await db.query(
+        "UPDATE employees SET roles_id = (?) WHERE employees.id = (?)",
+        [updateEmployeeAnswer.roles_id, updateEmployeeAnswer.employee_id]
+    )
+    selectionMenu();
 }
 
 
