@@ -1,9 +1,7 @@
-// const fs = require('fs');
 const mysql = require('mysql2');
-// const path = require('path');
 const inquirer = require('inquirer');
 const db = require('./db/connection');
-const utils = require('util');
+
 
 // const answers = await inquirer.prompt([{
 //     type:"list",
@@ -14,9 +12,11 @@ const utils = require('util');
 //         { name: "Accounting", value: 2 },
 //     ]
 // }])
+
+
 async function selectionMenu() {
 
-    const {userOptions} = await inquirer.prompt([
+    const userOptions = await inquirer.prompt([
         {
             name: 'userOptions',
             type: 'list',
@@ -154,3 +154,5 @@ async function addEmployee() {
 
 
 // Update an employee
+
+selectionMenu();
