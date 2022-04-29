@@ -106,17 +106,18 @@ async function addDepartment() {
 // Add role - CREATE -
 async function addRole() {
     // SELECT the existing departments out of the `roles` table
-    const departments = ('SELECT * FROM role');
+    const departments = await db.query('SELECT * FROM departments');
 
     // .map the results fom `roles` to the question for inquirer data
-    const choices = departments.map(departments => {
+    const choices = departments.map((department) => {
         return {
-            name: departments.department_name,
-            value: departments.id
+            name: department.department_name,
+            value: department.id
         }
     })
-    
-    const roleAnswer = await inquirer.prompt([
+
+    // THEN prompt the user for role information (inquirer)
+    const addRoleAnswer = await inquirer.prompt([
         {
             type: "list",
             name: "department_id",
@@ -131,25 +132,38 @@ async function addRole() {
         {
             type: 'input',
             name: 'salary',
-            message: 'Input role salary:'
+            message: 'Enter role salary:'
         },
-    ])
+    ]);
+
+    // Take the user's answers and INSERT them into the `roles` table
+    await db.query(
+        "INSERT INTO roles (role_title, salary, department_id) VALUES (?, ?, ?)",
+        [addRoleAnswer.role_title, addRoleAnswer.salary, addRoleAnswer.department_id]
+    )
     selectionMenu();
 }
 
-
-        const departments = {
-            
-        }
-
-
-        // THEN prompt the user for role information (inquirer)
-
-            // Take the user's answers and INSERT them into the `roles` table
-
 // Add employee - CREATE -
 async function addEmployee() {
+    // SELECT the existing employees out of the `employees` table
+    const employees = await db.query('SELECT * FROM employees');
 
+    // SELECT the existing roles out of the `roles` table
+    const roles = await db.query('SELECT * FROM roles');
+
+    const choices = departments.map((department) => {
+        return {
+            name: department.department_name,
+            value: department.id
+        }
+    })
+
+    await db.query(
+        "INSERT INTO roles (role_title, salary, department_id) VALUES (?, ?, ?)",
+        [addRoleAnswer.role_title, addRoleAnswer.salary, addRoleAnswer.department_id]
+    )
+    selectionMenu();
 }
 
 
